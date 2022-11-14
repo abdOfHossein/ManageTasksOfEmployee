@@ -12,9 +12,9 @@ export class UpdateTaskDto {
   @ApiProperty()
   head_id: string;
 
-  @ApiProperty()
+  @ApiProperty({default:TypeTaskEnum.DOING})
   type: TypeTaskEnum;
 
-  @ApiProperty()
+  @ApiProperty({default:StatusTaskEnum.NEWTASK})
   status: StatusTaskEnum;
 }

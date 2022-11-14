@@ -1,5 +1,6 @@
 import { BasicEnt } from 'src/common/entities/basic.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { TaskBlockOperationEnt } from 'src/modules/task-cblock-operation/modules/entities/task-block-operation.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { StatusTaskEnum } from '../enums/status-task.enum';
 import { TypeTaskEnum } from '../enums/type-task.enum';
 
@@ -22,4 +23,7 @@ export class TaskEnt extends BasicEnt {
 
   @Column({ nullable: true })
   status: StatusTaskEnum;
+
+  @OneToMany(()=>TaskBlockOperationEnt,task_block_operations=>task_block_operations.task)
+  task_block_operations:TaskBlockOperationEnt[]
 }

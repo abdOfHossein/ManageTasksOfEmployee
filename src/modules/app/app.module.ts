@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwaggerService } from 'src/config/swagger/service/swagger.service';
 import { DataSource } from 'typeorm';
 import { DepartmentCoreModule } from '../department/department-core/department-core.module';
+import { TaskBlockOperationCoreModule } from '../task-cblock-operation/task-core/task-block-operation-core.module';
 import { TaskCoreModule } from '../task/task-core/task-core.module';
 import { UserCoreModule } from '../user/user-core/user-core.module';
 import { AppController } from './app.controller';
@@ -31,6 +32,7 @@ import { AppService } from './app.service';
     UserCoreModule,
     DepartmentCoreModule,
     TaskCoreModule,
+    TaskBlockOperationCoreModule,
   ],
   controllers: [AppController],
   providers: [AppService, SwaggerService],

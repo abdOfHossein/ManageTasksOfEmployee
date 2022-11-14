@@ -1,6 +1,6 @@
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { SuccessDto } from 'src/common/result/success.dto';
-import { UserEnt } from 'src/modules/user/modules/entities/user.entity';
+import { TaskBlockOperationEnt } from 'src/modules/task-cblock-operation/modules/entities/task-block-operation.entity';
 import { DataSource, FindOneOptions, QueryRunner } from 'typeorm';
 import { CreateTaskDto } from '../dtos/create.task.dto';
 import { UpdateTaskDto } from '../dtos/update.task.dto';
@@ -61,6 +61,12 @@ export class TaskService {
       if (!TaskEnt) {
         throw new BadGatewayException({ message: 'Task does not exits' });
       }
+
+      //delete relation => task_block_operation
+      await this.dataSource
+        .getRepository(TaskBlockOperationEnt)
+        .delete({ task: taskEnt });
+
       const result = await this.taskRepo._deleteEntity(taskEnt);
       return this._resultDeleteDto(result);
     } catch (e) {
