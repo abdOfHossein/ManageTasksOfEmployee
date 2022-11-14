@@ -1,5 +1,6 @@
 import { BasicEnt } from 'src/common/entities/basic.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'user' })
 export class UserEnt extends BasicEnt {
@@ -23,4 +24,7 @@ export class UserEnt extends BasicEnt {
 
   @Column({ nullable: true })
   phonenumber: string;
+
+  @ManyToOne(() => DepartmentEnt, (department) => department.users)
+  department: DepartmentEnt;
 }

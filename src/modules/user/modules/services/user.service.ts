@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import { SuccessDto } from 'src/common/result/success.dto';
-import { FindOneOptions, QueryRunner } from 'typeorm';
+import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
+import { DataSource, FindOneOptions, QueryRunner } from 'typeorm';
 import { CreateUserDto } from '../dtos/create.user.dto';
 import { LoginUserDto } from '../dtos/login.user.dto';
 import { UpdateUserDto } from '../dtos/update.user.dto';
@@ -12,11 +13,24 @@ import { UserGDto } from '../result/user.g.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private userRepo: UserRepo) {}
+  constructor(
+    // @InjectRepository(DepartmentEnt)
+    private dataSource: DataSource,
+    private userRepo: UserRepo,
+  ) {}
 
   //register
   async _create(createDt: CreateUserDto, query?: QueryRunner) {
     try {
+      const departmentEnt = await this.dataSource
+        .getRepository(DepartmentEnt)
+        .findOne({ where: { id: createDt.id_department } });
+      if (!departmentEnt) {
+        throw new BadGatewayException({
+          message: 'there is no department for this user',
+        });
+      }
+      createDt.departmentEnt = departmentEnt;
       return await this.userRepo._createEntity(createDt, query);
     } catch (e) {
       console.log('register err in Service', e);
@@ -28,9 +42,9 @@ export class UserService {
   }
 
   //login
-  async _login(loginUserDto: LoginUserDto, options?: FindOneOptions) {
+  async _login(user: any) {
     try {
-      return await this.userRepo._loginEntity(loginUserDto, options);
+      return await this.userRepo._loginEntity(user);
     } catch (e) {
       console.log('login err in Service ', e);
     }
@@ -61,6 +75,8 @@ export class UserService {
 
   //update
   async _update(User_Id: string, updateDt: UpdateUserDto, query?: QueryRunner) {
+    const departmentEnt=await this.dataSource.getRepository(DepartmentEnt).findOne({where:{id:updateDt.id_department}})
+    updateDt.departmentEnt=departmentEnt;
     const uerEnt = <UserEnt>await this._getOne(User_Id);
     return await this.userRepo._updateEntity(uerEnt, updateDt, query);
   }
@@ -70,7 +86,10 @@ export class UserService {
 
   //delete
   async _delete(searchDto: string, query?: QueryRunner) {
-    const userEnt = await this._getOne(searchDto);
+    const userEnt: any = await this._getOne(searchDto);
+    if (!userEnt) {
+      throw new BadGatewayException({ message: 'user does not exits' });
+    }
     const result = await this.userRepo._deleteEntity(userEnt);
 
     return this._resultDeleteDto(result);

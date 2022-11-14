@@ -1,6 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
 
 export class CreateUserDto {
+  @ApiHideProperty()
+  departmentEnt : DepartmentEnt;
+
+  @ApiHideProperty()
+  id_department: string;
+
   @ApiProperty()
   first_name: string;
 

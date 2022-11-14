@@ -9,14 +9,23 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiHeader, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { PageDto } from 'src/common/dtos/page.dto';
 import { SuccessDto } from 'src/common/result/success.dto';
+import { JwtAuthGuard } from '../../modules/auth/jwt-auth.guard';
 import { LocalAuthGuard } from '../../modules/auth/local-auth.guard';
 import { CreateUserDto } from '../../modules/dtos/create.user.dto';
 import { LoginUserDto } from '../../modules/dtos/login.user.dto';
 import { UpdateUserDto } from '../../modules/dtos/update.user.dto';
 import { UserEnt } from '../../modules/entities/User.entity';
+import { UserPageDto } from '../../modules/paginations/user.page.dto';
 import { UserService } from '../../modules/services/User.service';
+
 @ApiTags('User')
 @ApiHeader({
   name: 'language-code',
@@ -31,8 +40,11 @@ export class UserController {
 
   //register
   @Post('/register')
-  register(@Body() createUserDto: CreateUserDto): Promise<UserEnt> {
-    console.log('createUserDto controller', createUserDto);
+  register(
+    @Query('id_department') id_department: string,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserEnt> {
+    createUserDto.id_department=id_department
     return this.user._create(createUserDto);
   }
 
@@ -43,9 +55,10 @@ export class UserController {
     return this.user._login(req.user);
   }
 
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
+  @ApiBasicAuth()
   @Get('/protected')
-  sayHello(@Request() req) {
+  sayHello(@Request() req): string {
     return req.user;
   }
 
@@ -53,8 +66,10 @@ export class UserController {
   @Put()
   updateArch(
     @Query('id_user') id_user: string,
+    @Query('id_department') id_department: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserEnt> {
+    updateUserDto.id_department=id_department
     return this.user._update(id_user, updateUserDto);
   }
 
@@ -62,5 +77,12 @@ export class UserController {
   @Delete()
   deleteArch(@Query('id_User') id_User: string): Promise<SuccessDto> {
     return this.user._delete(id_User);
+  }
+
+  //pagination
+  @ApiOperation({ summary: 'pagination for user' })
+  @Post('page')
+  getPaginationArch(@Body() pageDto: UserPageDto): Promise<PageDto<UserEnt>> {
+    return this.user._pagination(pageDto);
   }
 }

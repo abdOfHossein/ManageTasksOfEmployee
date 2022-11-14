@@ -1,3 +1,4 @@
+import { BadGatewayException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt/dist';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageDto } from 'src/common/dtos/page.dto';
@@ -30,24 +31,13 @@ export class UserRepo {
     userEnt.password = createDto.password;
     userEnt.phonenumber = createDto.phonenumber;
     userEnt.username = createDto.username;
+    userEnt.department = createDto.departmentEnt;
     if (query) return await query.manager.save(userEnt);
-    const result = await this.dataSource.manager.save(userEnt);
-    console.log('result', result);
 
-    return result;
+    return await this.dataSource.manager.save(userEnt);
   }
 
-  // login
-  async _loginEntity(loginUserDto: LoginUserDto, options?: FindOneOptions) {
-    const payload = {
-      name: loginUserDto.username,
-      sub: loginUserDto.password,
-    };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-
+  //validate User
   async __validateUserEntity(
     loginUserDto: LoginUserDto,
     options?: FindOneOptions,
@@ -61,14 +51,29 @@ export class UserRepo {
     return null;
   }
 
+  // create Token => login
+  async _loginEntity(user: any) {
+    const payload = {
+      sub: user.id,
+      username: user.username,
+    };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
   //readOne
   async _findOneEntity(
     searchDto: string,
     options?: FindOneOptions,
-  ): Promise<UserEnt> {
-    return await this.dataSource.manager.findOne(UserEnt, {
+  ): Promise<Object> {
+    const result = await this.dataSource.manager.findOne(UserEnt, {
       where: { id: searchDto },
     });
+    if (!result) {
+      throw new BadGatewayException({ message: 'user does not exits' });
+    }
+    return result;
   }
 
   //update
@@ -77,6 +82,7 @@ export class UserRepo {
     updateDto: UpdateUserDto,
     query?: QueryRunner,
   ): Promise<UserEnt> {
+    entity.department = updateDto.departmentEnt;
     entity.first_name = updateDto.first_name;
     entity.email = updateDto.email;
     entity.last_name = updateDto.last_name;

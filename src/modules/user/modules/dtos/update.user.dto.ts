@@ -1,7 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
 
 export class UpdateUserDto {
+  @ApiHideProperty()
+  departmentEnt: DepartmentEnt;
+
+  @ApiProperty()
+  id_department: string;
+
   @ApiProperty()
   first_name: string;
 

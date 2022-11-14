@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwaggerService } from 'src/config/swagger/service/swagger.service';
 import { DataSource } from 'typeorm';
+import { DepartmentCoreModule } from '../department/department-core/department-core.module';
 import { UserCoreModule } from '../user/user-core/user-core.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -27,6 +28,7 @@ import { AppService } from './app.service';
       },
     }),
     UserCoreModule,
+    DepartmentCoreModule
   ],
   controllers: [AppController],
   providers: [AppService, SwaggerService],
