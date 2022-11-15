@@ -26,6 +26,7 @@ export class UserRepo {
   ): Promise<UserEnt> {
     const userEnt = new UserEnt();
     userEnt.first_name = createDto.first_name;
+    userEnt.role = createDto.roleEnt;
     userEnt.email = createDto.email;
     userEnt.last_name = createDto.last_name;
     userEnt.password = createDto.password;
@@ -87,6 +88,7 @@ export class UserRepo {
     entity.email = updateDto.email;
     entity.last_name = updateDto.last_name;
     entity.password = updateDto.password;
+    entity.role = updateDto.roleEnt;
     entity.phonenumber = updateDto.phonenumber;
     entity.username = updateDto.username;
 

@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwaggerService } from 'src/config/swagger/service/swagger.service';
 import { DataSource } from 'typeorm';
+import { DepartmentRlCoreModule } from '../department-rl/department-rl-core/department-rl-core.module';
 import { DepartmentCoreModule } from '../department/department-core/department-core.module';
 import { ProjectCoreModule } from '../project/task-core/project-core.module';
 import { RelTaskCoreModule } from '../rel-task/task-core/rel-task-core.module';
 import { ReqCoreModule } from '../req/task-core/req-core.module';
+import { RoleCoreModule } from '../role/user-core/role-core.module';
 import { TaskBlockOperationCoreModule } from '../task-cblock-operation/task-core/task-block-operation-core.module';
 import { TaskCoreModule } from '../task/task-core/task-core.module';
 import { UserCoreModule } from '../user/user-core/user-core.module';
@@ -38,7 +40,9 @@ import { AppService } from './app.service';
     TaskBlockOperationCoreModule,
     RelTaskCoreModule,
     ProjectCoreModule,
-    ReqCoreModule
+    ReqCoreModule,
+    RoleCoreModule,
+    DepartmentRlCoreModule
   ],
   controllers: [AppController],
   providers: [AppService, SwaggerService],

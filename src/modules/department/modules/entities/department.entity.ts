@@ -1,4 +1,5 @@
 import { BasicEnt } from 'src/common/entities/basic.entity';
+import { DepartmentRlEnt } from 'src/modules/department-rl/modules/entities/department-rl.entity';
 import { UserEnt } from 'src/modules/user/modules/entities/user.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -15,4 +16,7 @@ export class DepartmentEnt extends BasicEnt {
 
   @OneToMany(() => UserEnt, (users) => users.department)
   users: UserEnt[];
+
+  @OneToMany(() => DepartmentRlEnt, (department_rls) => department_rls.department)
+  department_rls: DepartmentRlEnt[];
 }

@@ -1,5 +1,6 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
+import { RoleEnt } from 'src/modules/role/modules/entities/role.entity';
 
 export class UpdateUserDto {
   @ApiHideProperty()
@@ -7,6 +8,12 @@ export class UpdateUserDto {
 
   @ApiProperty()
   id_department: string;
+
+  @ApiHideProperty()
+  roleEnt : RoleEnt;
+
+  @ApiHideProperty()
+  id_role: string;
 
   @ApiProperty()
   first_name: string;

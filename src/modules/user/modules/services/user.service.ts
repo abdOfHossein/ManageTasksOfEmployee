@@ -1,6 +1,7 @@
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { SuccessDto } from 'src/common/result/success.dto';
 import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
+import { RoleEnt } from 'src/modules/role/modules/entities/role.entity';
 import { DataSource, FindOneOptions, QueryRunner } from 'typeorm';
 import { CreateUserDto } from '../dtos/create.user.dto';
 import { LoginUserDto } from '../dtos/login.user.dto';
@@ -13,11 +14,7 @@ import { UserGDto } from '../result/user.g.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    // @InjectRepository(DepartmentEnt)
-    private dataSource: DataSource,
-    private userRepo: UserRepo,
-  ) {}
+  constructor(private dataSource: DataSource, private userRepo: UserRepo) {}
 
   //register
   async _create(createDt: CreateUserDto, query?: QueryRunner) {
@@ -25,12 +22,17 @@ export class UserService {
       const departmentEnt = await this.dataSource
         .getRepository(DepartmentEnt)
         .findOne({ where: { id: createDt.id_department } });
-      if (!departmentEnt) {
+      const roleEnt = await this.dataSource
+        .getRepository(RoleEnt)
+        .findOne({ where: { id: createDt.id_role } });
+      if (!departmentEnt || !roleEnt) {
         throw new BadGatewayException({
           message: 'there is no department for this user',
         });
       }
+
       createDt.departmentEnt = departmentEnt;
+      createDt.roleEnt = roleEnt;
       return await this.userRepo._createEntity(createDt, query);
     } catch (e) {
       console.log('register err in Service', e);
@@ -75,8 +77,21 @@ export class UserService {
 
   //update
   async _update(User_Id: string, updateDt: UpdateUserDto, query?: QueryRunner) {
-    const departmentEnt=await this.dataSource.getRepository(DepartmentEnt).findOne({where:{id:updateDt.id_department}})
-    updateDt.departmentEnt=departmentEnt;
+    const departmentEnt = await this.dataSource
+      .getRepository(DepartmentEnt)
+      .findOne({ where: { id: updateDt.id_department } });
+
+    const roleEnt = await this.dataSource
+      .getRepository(RoleEnt)
+      .findOne({ where: { id: updateDt.id_role } });
+    if (!departmentEnt || !roleEnt) {
+      throw new BadGatewayException({
+        message: 'there is no department for this user',
+      });
+    }
+
+    updateDt.roleEnt = roleEnt;
+    updateDt.departmentEnt = departmentEnt;
     const uerEnt = <UserEnt>await this._getOne(User_Id);
     return await this.userRepo._updateEntity(uerEnt, updateDt, query);
   }
