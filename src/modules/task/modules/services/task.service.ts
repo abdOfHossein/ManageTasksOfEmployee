@@ -43,8 +43,8 @@ export class TaskService {
   //update
   async _update(Task_Id: string, updateDt: UpdateTaskDto, query?: QueryRunner) {
     try {
-      const uerEnt = <TaskEnt>await this._getOne(Task_Id);
-      return await this.taskRepo._updateEntity(uerEnt, updateDt, query);
+      const taskEnt = <TaskEnt>await this._getOne(Task_Id);
+      return await this.taskRepo._updateEntity(taskEnt, updateDt, query);
     } catch (e) {
       console.log('update Task err in service', e);
       throw e;
