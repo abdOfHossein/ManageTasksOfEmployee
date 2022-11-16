@@ -49,26 +49,7 @@ export class UserService {
     return new UserCUDto(ent);
   }
 
-  //login
-  async _login(user: any) {
-    try {
-      return await this.userRepo._loginEntity(user);
-    } catch (e) {
-      console.log('login err in Service ', e);
-    }
-  }
-  _resultLoginDto(ent: UserEnt) {
-    return new UserGDto(ent);
-  }
-
-  //validate user
-  async _validateUser(loginUserDto: LoginUserDto, options?: FindOneOptions) {
-    try {
-      return await this.userRepo.__validateUserEntity(loginUserDto, options);
-    } catch (e) {
-      console.log('_validateUser err in Service ', e);
-    }
-  }
+  
   _resultValidateUserDto(ent: UserEnt) {
     return new UserGDto(ent);
   }

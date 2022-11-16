@@ -46,32 +46,7 @@ export class UserRepo {
 
     return await this.dataSource.manager.save(userEnt);
   }
-
-  //validate User
-  async __validateUserEntity(
-    loginUserDto: LoginUserDto,
-    options?: FindOneOptions,
-  ): Promise<UserEnt> {
-    const user = await this.dataSource.manager.findOne(UserEnt, {
-      where: { username: loginUserDto.username },
-    });
-    if (user && loginUserDto.password == user.password) {
-      return user;
-    }
-    return null;
-  }
-
-  // create Token => login
-  async _loginEntity(user: any) {
-    const payload = {
-      sub: user.id,
-      username: user.username,
-    };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-
+  
   //readOne
   async _findOneEntity(
     searchDto: string,
