@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwaggerService } from 'src/config/swagger/service/swagger.service';
 import { DataSource } from 'typeorm';
+import appConfiguration from '../../config/configs/app-configuration';
 import { DepartmentRlCoreModule } from '../department-rl/department-rl-core/department-rl-core.module';
 import { DepartmentCoreModule } from '../department/department-core/department-core.module';
+import { HashModule } from '../hash/hash.module';
 import { ProjectCoreModule } from '../project/task-core/project-core.module';
+import { RedisModule } from '../redis/redis.module';
 import { RelTaskCoreModule } from '../rel-task/task-core/rel-task-core.module';
 import { ReqCoreModule } from '../req/task-core/req-core.module';
 import { RoleCoreModule } from '../role/user-core/role-core.module';
@@ -13,8 +17,14 @@ import { TaskCoreModule } from '../task/task-core/task-core.module';
 import { UserCoreModule } from '../user/user-core/user-core.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+      isGlobal: true,
+      load: [appConfiguration],
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         // ...defaultDatabaseOptions,
@@ -42,7 +52,9 @@ import { AppService } from './app.service';
     ProjectCoreModule,
     ReqCoreModule,
     RoleCoreModule,
-    DepartmentRlCoreModule
+    DepartmentRlCoreModule,
+    RedisModule.forRoot('127.0.0.1', 6379),
+    HashModule,
   ],
   controllers: [AppController],
   providers: [AppService, SwaggerService],

@@ -1,4 +1,5 @@
 import { BadGatewayException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { SuccessDto } from 'src/common/result/success.dto';
 import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
 import { RoleEnt } from 'src/modules/role/modules/entities/role.entity';
@@ -11,10 +12,15 @@ import { UserPageDto } from '../paginations/user.page.dto';
 import { UserRepo } from '../repositories/user.repository';
 import { UserCUDto } from '../result/user.c.u.dto';
 import { UserGDto } from '../result/user.g.dto';
+const randomstring = require('randomstring');
 
 @Injectable()
 export class UserService {
-  constructor(private dataSource: DataSource, private userRepo: UserRepo) {}
+  PREFIX_TOKEN_AUTH = 'prefix_auth_token_';
+  constructor(
+    private dataSource: DataSource,
+    private userRepo: UserRepo,
+  ) {}
 
   //register
   async _create(createDt: CreateUserDto, query?: QueryRunner) {
@@ -116,5 +122,23 @@ export class UserService {
   //pagination
   async _pagination(pageDto: UserPageDto) {
     return await this.userRepo._paginationEntity(pageDto);
+  }
+
+  //_createJwt
+  async _createJwt(loginUserDto: LoginUserDto) {
+    try {
+      console.log(loginUserDto.username );
+
+      const user = await this.dataSource.getRepository(UserEnt).findOne({
+        where: { username: loginUserDto.username },
+        // relations: { role: true },
+      });
+      console.log(user);
+
+      return await this.userRepo._createJwt(user.id, user.role);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
 }

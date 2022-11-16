@@ -9,6 +9,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   ApiBasicAuth,
   ApiHeader,
@@ -17,14 +18,19 @@ import {
 } from '@nestjs/swagger';
 import { PageDto } from 'src/common/dtos/page.dto';
 import { SuccessDto } from 'src/common/result/success.dto';
-import { JwtAuthGuard } from '../../modules/auth/jwt-auth.guard';
-import { LocalAuthGuard } from '../../modules/auth/local-auth.guard';
+import { HashService } from 'src/modules/hash/hash.service';
+import { RedisService } from 'src/modules/redis/redis.service';
+import { DataSource } from 'typeorm';
+import { JwtGuard } from '../../modules/auth/guards/jwt.guard';
+import { JwtStrategy } from '../../modules/auth/strategy/jwt.strategy';
 import { CreateUserDto } from '../../modules/dtos/create.user.dto';
 import { LoginUserDto } from '../../modules/dtos/login.user.dto';
 import { UpdateUserDto } from '../../modules/dtos/update.user.dto';
 import { UserEnt } from '../../modules/entities/User.entity';
 import { UserPageDto } from '../../modules/paginations/user.page.dto';
+import { UserRepo } from '../../modules/repositories/user.repository';
 import { UserService } from '../../modules/services/User.service';
+
 
 @ApiTags('User')
 @ApiHeader({
@@ -36,7 +42,11 @@ import { UserService } from '../../modules/services/User.service';
 })
 @Controller('User')
 export class UserController {
-  constructor(private user: UserService) {}
+  PREFIX_TOKEN_AUTH = "prefix_auth_token_"
+  constructor(
+    private user: UserService
+
+  ) {}
 
   //register
   @Post('/register')
@@ -45,23 +55,22 @@ export class UserController {
     @Query('id_role') id_role: string,
     @Body() createUserDto: CreateUserDto,
   ): Promise<UserEnt> {
-    createUserDto.id_department=id_department;
-    createUserDto.id_role=id_role;
+    createUserDto.id_department = id_department;
+    createUserDto.id_role = id_role;
     return this.user._create(createUserDto);
   }
 
   //login
-  @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req, @Body() loginUserDto: LoginUserDto): Promise<Object> {
-    return this.user._login(req.user);
+  login( @Body() loginUserDto: LoginUserDto): Promise<Object> {
+    return this.user._createJwt(loginUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiBasicAuth()
+  @UseGuards(JwtStrategy)
   @Get('/protected')
-  sayHello(@Request() req): string {
-    return req.user;
+  sayHello(): string {
+    return "ok";
   }
 
   //update
@@ -72,8 +81,8 @@ export class UserController {
     @Query('id_role') id_role: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserEnt> {
-    updateUserDto.id_department=id_department
-    updateUserDto.id_role=id_role
+    updateUserDto.id_department = id_department;
+    updateUserDto.id_role = id_role;
     return this.user._update(id_user, updateUserDto);
   }
 
