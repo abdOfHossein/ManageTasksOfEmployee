@@ -6,31 +6,25 @@ import {
   Post,
   Put,
   Query,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import {
-  ApiBasicAuth,
+  ApiBearerAuth,
   ApiHeader,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { PageDto } from 'src/common/dtos/page.dto';
 import { SuccessDto } from 'src/common/result/success.dto';
-import { HashService } from 'src/modules/hash/hash.service';
-import { RedisService } from 'src/modules/redis/redis.service';
-import { DataSource } from 'typeorm';
 import { JwtGuard } from '../../modules/auth/guards/jwt.guard';
-import { JwtStrategy } from '../../modules/auth/strategy/jwt.strategy';
 import { CreateUserDto } from '../../modules/dtos/create.user.dto';
 import { LoginUserDto } from '../../modules/dtos/login.user.dto';
 import { UpdateUserDto } from '../../modules/dtos/update.user.dto';
 import { UserEnt } from '../../modules/entities/User.entity';
+import { RolesGuard } from '../../modules/guard/role.guard';
 import { UserPageDto } from '../../modules/paginations/user.page.dto';
-import { UserRepo } from '../../modules/repositories/user.repository';
 import { UserService } from '../../modules/services/User.service';
-
 
 @ApiTags('User')
 @ApiHeader({
@@ -42,13 +36,13 @@ import { UserService } from '../../modules/services/User.service';
 })
 @Controller('User')
 export class UserController {
-  PREFIX_TOKEN_AUTH = "prefix_auth_token_"
-  constructor(
-    private user: UserService
-
-  ) {}
+  PREFIX_TOKEN_AUTH = 'prefix_auth_token_';
+  constructor(private user: UserService) {}
 
   //register
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtGuard)
   @Post('/register')
   register(
     @Query('id_department') id_department: string,
@@ -62,15 +56,15 @@ export class UserController {
 
   //login
   @Post('login')
-  login( @Body() loginUserDto: LoginUserDto): Promise<Object> {
+  login(@Body() loginUserDto: LoginUserDto): Promise<Object> {
     return this.user._createJwt(loginUserDto);
   }
 
-  @ApiBasicAuth()
-  @UseGuards(JwtStrategy)
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtGuard)
   @Get('/protected')
-  sayHello(): string {
-    return "ok";
+  protected(@Req() req: any) {
+    return req.user;
   }
 
   //update

@@ -7,11 +7,13 @@ import { RedisModule } from 'src/modules/redis/redis.module';
 import { JwtGuard } from './auth/guards/jwt.guard';
 import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { UserEnt } from './entities/user.entity';
+import { RolesGuard } from './guard/role.guard';
 import { UserRepo } from './repositories/user.repository';
 import { UserService } from './services/User.service';
 @Module({
-  imports: [   RedisModule.forRoot('127.0.0.1', 6379),
-  HashModule,
+  imports: [
+    RedisModule.forRoot('127.0.0.1', 6379),
+    HashModule,
     TypeOrmModule.forFeature([UserEnt]),
     PassportModule,
     JwtModule.register({
@@ -19,7 +21,7 @@ import { UserService } from './services/User.service';
       signOptions: { expiresIn: '60s' },
     }),
   ],
-  providers: [UserService, UserRepo, JwtStrategy, JwtGuard],
+  providers: [UserService, UserRepo, JwtStrategy, JwtGuard, RolesGuard],
   exports: [UserService],
 })
 export class UserModule {}

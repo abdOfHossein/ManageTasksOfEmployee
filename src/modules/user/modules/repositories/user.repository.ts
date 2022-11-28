@@ -43,7 +43,6 @@ export class UserRepo {
     userEnt.username = createDto.username;
     userEnt.department = createDto.departmentEnt;
     if (query) return await query.manager.save(userEnt);
-
     return await this.dataSource.manager.save(userEnt);
   }
   

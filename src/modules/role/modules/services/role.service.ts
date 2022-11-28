@@ -18,7 +18,7 @@ export class RoleService {
     try {
       return await this.roleRepo._createEntity(createDt, query);
     } catch (e) {
-      console.log('register err in Service', e);
+      console.log('create err in Service', e);
       throw e;
     }
   }

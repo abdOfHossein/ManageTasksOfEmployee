@@ -1,5 +1,9 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import {
+  BadGatewayException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { SuccessDto } from 'src/common/result/success.dto';
 import { DepartmentEnt } from 'src/modules/department/modules/entities/department.entity';
 import { RoleEnt } from 'src/modules/role/modules/entities/role.entity';
@@ -17,10 +21,7 @@ const randomstring = require('randomstring');
 @Injectable()
 export class UserService {
   PREFIX_TOKEN_AUTH = 'prefix_auth_token_';
-  constructor(
-    private dataSource: DataSource,
-    private userRepo: UserRepo,
-  ) {}
+  constructor(private dataSource: DataSource, private userRepo: UserRepo) {}
 
   //register
   async _create(createDt: CreateUserDto, query?: QueryRunner) {
@@ -41,15 +42,13 @@ export class UserService {
       createDt.roleEnt = roleEnt;
       return await this.userRepo._createEntity(createDt, query);
     } catch (e) {
-      console.log('register err in Service', e);
-      throw e;
+      throw e
     }
   }
   _resultCreateDto(ent: UserEnt) {
     return new UserCUDto(ent);
   }
 
-  
   _resultValidateUserDto(ent: UserEnt) {
     return new UserGDto(ent);
   }
@@ -108,7 +107,7 @@ export class UserService {
   //_createJwt
   async _createJwt(loginUserDto: LoginUserDto) {
     try {
-      console.log(loginUserDto.username );
+      console.log(loginUserDto.username);
 
       const user = await this.dataSource.getRepository(UserEnt).findOne({
         where: { username: loginUserDto.username },
